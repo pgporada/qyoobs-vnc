@@ -1,0 +1,25 @@
+[package]
+name = "qyoobs-vnc"
+version = "0.1.0"
+edition = "2024"
+license = "GPL-2.0-or-later"
+description = "Opens a VNC session to another Qube."
+repository = "https://github.com/inahga/qyoobs-vnc"
+
+[dependencies]
+anyhow = "1.0.97"
+argh = { version = "0.1.13", default-features = false, features = ["help"] }
+libc = "0.2.171"
+
+[package.metadata.generate-rpm]
+assets = [
+  { source = "target/release/qyoobs-vnc", dest = "/usr/bin/qyoobs-vnc", mode = "0755" },
+  { source = "src/qyoobs.VNC", dest = "/etc/qubes-rpc/qyoobs.VNC", mode = "0755" },
+  { source = "LICENSE", dest = "/usr/share/doc/qyoobs-vnc/LICENSE", doc = true, mode = "0644" },
+  { source = "README.md", dest = "/usr/share/doc/qyoobs-vnc/README.md", doc = true, mode = "0644" },
+]
+
+[package.metadata.generate-rpm.requires]
+qubes-core-qrexec = "*"
+tigervnc = "*"
+x11vnc = "*"
