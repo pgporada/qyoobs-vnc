@@ -26,18 +26,27 @@ window from your source qube.
 
 If you have multiple monitors, and want to limit the capture to a single monitor, use the `--screen`
 option.
-```
+```bash
 qyoobs-vnc connect personal --screen 1
 ```
 
 You can also interactively select an entity to capture using the `--choose` flag.
-```
+```bash
 qyoobs-vnc connect personal --choose
 ```
 
 ## Building
 
 To build from source, install the dependencies `libX11-devel` and `libXinerama-devel`.
+
+To build the RPM, install `cargo-generate-rpm` with `cargo install cargo-generate-rpm`. Then, build
+it.
+```bash
+cargo build --release
+cargo generate-rpm
+```
+
+The RPM will be present in `target/generate-rpm`.
 
 ## Alternatives
 
