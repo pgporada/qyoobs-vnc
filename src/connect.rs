@@ -13,9 +13,9 @@ use anyhow::Error;
 use crate::{ConnectArgs, sigterm};
 
 pub fn run(verbose: bool, args: ConnectArgs) -> Result<(), Error> {
-    let viewer = env::temp_dir().join("qyoobs-vnc.sock");
-    fs::remove_file(viewer.clone())?;
-    let viewer_listener = UnixListener::bind(viewer.clone())?;
+    let viewer_socket = env::temp_dir().join("qyoobs-vnc.sock");
+    fs::remove_file(viewer_socket.clone())?;
+    let viewer_listener = UnixListener::bind(viewer_socket.clone())?;
 
     // TODO(inahga): I tried using pipes here, but it didn't work. FIFO buffering problem?
     let (mut qrexec_socket, qrexec_socket_child) = UnixStream::pair()?;
@@ -39,7 +39,9 @@ pub fn run(verbose: bool, args: ConnectArgs) -> Result<(), Error> {
             "-SendPrimary=0",
             "-SendClipboard=0",
             if verbose { "-Log=*:stderr:100" } else { "" },
-            viewer.to_str().expect("socket_path is not valid unicode?"),
+            viewer_socket
+                .to_str()
+                .expect("socket_path is not valid unicode?"),
         ])
         .stdin(Stdio::null())
         .stdout(Stdio::inherit())

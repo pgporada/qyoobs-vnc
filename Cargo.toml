@@ -9,12 +9,15 @@ repository = "https://github.com/inahga/qyoobs-vnc"
 [dependencies]
 anyhow = "1.0.97"
 argh = { version = "0.1.13", default-features = false, features = ["help"] }
+dialoguer = { version = "0.11.0", default-features = false }
 libc = "0.2.171"
+nanoserde = "0.1.37"
+x11 = { version = "2.21.0", features = ["xinerama", "xlib"], default-features = false }
 
 [package.metadata.generate-rpm]
 assets = [
   { source = "target/release/qyoobs-vnc", dest = "/usr/bin/qyoobs-vnc", mode = "0755" },
-  { source = "src/qyoobs.VNC", dest = "/etc/qubes-rpc/qyoobs.VNC", mode = "0755" },
+  { source = "etc/qubes-rpc/qyoobs.VNC", dest = "/etc/qubes-rpc/qyoobs.VNC", mode = "0755" },
   { source = "LICENSE", dest = "/usr/share/doc/qyoobs-vnc/LICENSE", doc = true, mode = "0644" },
   { source = "README.md", dest = "/usr/share/doc/qyoobs-vnc/README.md", doc = true, mode = "0644" },
 ]

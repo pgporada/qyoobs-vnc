@@ -8,11 +8,18 @@ use std::{
 
 use anyhow::{Context, Error, anyhow};
 
-use crate::sigkill;
+use crate::{probe, sigkill};
 
-pub fn run(args: Option<String>) -> Result<(), Error> {
-    let region_selection = RegionSelection::parse(args)?;
+pub fn run(args: String) -> Result<(), Error> {
+    let action = Action::parse(args)?;
 
+    match action {
+        Action::Probe => probe::probe(),
+        action => vnc(action),
+    }
+}
+
+fn vnc(action: Action) -> Result<(), Error> {
     let mut args = Vec::from([
         "-viewonly".to_string(),
         "-inetd".to_string(),
@@ -21,7 +28,7 @@ pub fn run(args: Option<String>) -> Result<(), Error> {
         "-v".to_string(),
         // TODO(inahga): log to file
     ]);
-    args.extend(region_selection.render());
+    args.extend(action.render());
 
     // It would be ideal if we could simply Stdio::inherit() stdin and stdout, but it seems x11vnc
     // doesn't play nice with pipes. We'll have to play games with sockets. See
@@ -56,40 +63,36 @@ pub fn run(args: Option<String>) -> Result<(), Error> {
     Ok(())
 }
 
-enum RegionSelection {
-    Display,
-    Window(u32),
-    Screen(u32),
+enum Action {
+    Probe,
+    SendDisplay,
+    SendWindow(u32),
+    SendMonitor(u32),
 }
 
-impl RegionSelection {
-    fn parse(input: Option<String>) -> Result<Self, Error> {
-        match input {
-            None => Ok(Self::Display),
-            Some(input) => {
-                if let Some((_, value)) = input.split_once("window") {
-                    let value = value
-                        .strip_prefix("0x")
-                        .ok_or(anyhow!("invalid hexadecimal value"))?;
-                    return Ok(Self::Window(u32::from_str_radix(value, 16)?));
-                }
-                if let Some((_, value)) = input.split_once("screen") {
-                    return Ok(Self::Screen(value.parse()?));
-                }
-                Err(anyhow!("argument unrecognized"))
-            }
+impl Action {
+    fn parse(input: String) -> Result<Self, Error> {
+        if input == "display" {
+            Ok(Self::SendDisplay)
+        } else if input == "probe" {
+            Ok(Self::Probe)
+        } else if let Some((_, value)) = input.split_once("window") {
+            Ok(Self::SendWindow(value.parse()?))
+        } else if let Some((_, value)) = input.split_once("monitor") {
+            Ok(Self::SendMonitor(value.parse()?))
+        } else {
+            Err(anyhow!("argument unrecognized"))
         }
     }
 
     fn render(&self) -> Vec<String> {
         match self {
-            RegionSelection::Display => Vec::new(),
-            RegionSelection::Screen(screen) => {
-                Vec::from(["-clip".to_string(), format!("xinerama{screen}")])
+            Action::Probe => Vec::new(),
+            Action::SendDisplay => Vec::new(),
+            Action::SendMonitor(monitor) => {
+                Vec::from(["-clip".to_string(), format!("xinerama{monitor}")])
             }
-            RegionSelection::Window(window) => {
-                Vec::from(["-sid".to_string(), format!("0x{:x}", window)])
-            }
+            Action::SendWindow(window) => Vec::from(["-sid".to_string(), window.to_string()]),
         }
     }
 }
