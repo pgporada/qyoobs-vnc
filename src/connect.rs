@@ -14,7 +14,7 @@ use crate::{ConnectArgs, sigterm};
 
 pub fn run(verbose: bool, args: ConnectArgs) -> Result<(), Error> {
     let viewer_socket = env::temp_dir().join("qyoobs-vnc.sock");
-    fs::remove_file(viewer_socket.clone())?;
+    let _ = fs::remove_file(viewer_socket.clone());
     let viewer_listener = UnixListener::bind(viewer_socket.clone())?;
 
     // TODO(inahga): I tried using pipes here, but it didn't work. FIFO buffering problem?
