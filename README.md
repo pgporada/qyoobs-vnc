@@ -3,8 +3,11 @@
 Opens a VNC viewer to another Qube. This is useful for facilitating screensharing of another qube
 through Google Meet, Zoom, etc.
 
-Install `qyoobs-vnc` to your source and target qubes, preferably their templates.
+Download the latest `.rpm` from the [Releases page](https://github.com/inahga/qyoobs-vnc/releases/latest),
+and install it with `dnf` to both the source and destination qube. It is preferable to install it
+your templates.
 ```bash
+sudo dnf install -y /path/to/downloaded/rpm
 ```
 
 In Dom0, apply a policy that permits `qyoobs-vnc` to work. Use the Qubes Policy Editor, or whatever
