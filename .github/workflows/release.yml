@@ -1,0 +1,29 @@
+on:
+  push:
+    tags:
+      - v*
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Release qyoobs-vnc
+    runs-on: ubuntu-latest
+    container: docker.io/library/fedora:40
+    steps:
+      - uses: actions/checkout@v3
+      - run: sudo dnf install -y rustup libX11-devel libXinerama-devel gcc make cmake automake gh
+      - run: |
+          rustup-init -y
+          echo "$HOME/.cargo/bin" >>"$GITHUB_PATH"
+      - run: cargo install cargo-generate-rpm
+      - run: cargo build --release
+      - run: cargo generate-rpm
+      - name: create release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ github.ref_name }}
+        run: |
+          gh release create "$tag" --repo="$GITHUB_REPOSITORY" --title="$tag" --generate-notes
+          gh release upload "$tag" --repo="$GITHUB_REPOSITORY" target/generate-rpm/*.rpm

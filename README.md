@@ -7,7 +7,8 @@ Install `qyoobs-vnc` to your source and target qubes, preferably their templates
 ```bash
 ```
 
-In Dom0, apply a policy that permits `qyoobs-vnc` to work.
+In Dom0, apply a policy that permits `qyoobs-vnc` to work. Use the Qubes Policy Editor, or whatever
+strategy you're using to apply Qubes policies.
 ```bash
 # Configure this policy to your taste.
 qyoobs.VNC * @anyvm @anyvm ask
