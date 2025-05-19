@@ -25,7 +25,7 @@ jobs:
         id: checksums
         # The files listed on this line must be identical to the files uploaded
         # in the last step.
-        run: sha256sum qyoobs-vnc*.rpm >| qyoobs-vnc.$(date +%s)-$(git rev-parse --short=8 HEAD).checksums.txt
+        run: sha256sum target/generate-rpm/qyoobs-vnc*.rpm >| /tmp/qyoobs-vnc.$(date +%s)-$(git rev-parse --short=8 HEAD).checksums.txt
 
       - name: Create release
         env:
@@ -33,4 +33,4 @@ jobs:
           tag: ${{ github.ref_name }}
         run: |
           gh release create "$tag" --repo="$GITHUB_REPOSITORY" --title="$tag" --generate-notes
-          gh release upload "$tag" --repo="$GITHUB_REPOSITORY" target/generate-rpm/qyoobs-vnc*.rpm qyoobs-vnc*.checksums.txt
+          gh release upload "$tag" --repo="$GITHUB_REPOSITORY" target/generate-rpm/qyoobs-vnc*.rpm /tmp/qyoobs-vnc*.checksums.txt
